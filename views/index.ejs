@@ -1,0 +1,91 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <title>Ambulance Locator</title>
+    <link rel="stylesheet" href="/style.css">
+    <script
+        src="https://maps.googleapis.com/maps/api/js?key=<%= process.env.GOOGLE_API_KEY %>&libraries=places"></script>
+    <script>
+        function submitWithLocation() {
+            if (navigator.geolocation) {
+                navigator.geolocation.getCurrentPosition(position => {
+                    fetch('/search', {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({
+                            latitude: position.coords.latitude,
+                            longitude: position.coords.longitude
+                        })
+                    })
+                        .then(res => res.text())
+                        .then(html => {
+                            document.open();
+                            document.write(html);
+                            document.close();
+                        });
+                }, () => {
+                    alert('Could not get your location. Please enter an address manually.');
+                });
+            } else {
+                alert('Geolocation is not supported by your browser.');
+            }
+        }
+    </script>
+</head>
+
+<body>
+    <div class="container">
+        <h2>Ambulance Locator</h2>
+        <form class="search-form" action="/search" method="POST">
+            <input type="text" name="address" placeholder="Enter location (address, city, or landmark)..." required>
+            <button type="submit">Search Ambulances</button>
+        </form>
+
+        <% if (error) { %>
+            <div class="error-message">
+                <p>
+                    <%= error %>
+                </p>
+            </div>
+            <% } %>
+
+                <% if (results && results.length> 0) { %>
+                    <h3>Nearby Ambulance Services</h3>
+                    <table class="results-table">
+                        <thead>
+                            <tr>
+                                <th>Company Name</th>
+                                <th>Address</th>
+                                <th>Phone Number</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <% results.forEach(r=> { %>
+                                <tr>
+                                    <td><strong>
+                                            <%= r.name %>
+                                        </strong></td>
+                                    <td>
+                                        <%= r.address %>
+                                    </td>
+                                    <td>
+                                        <%= r.phone %>
+                                    </td>
+                                </tr>
+                                <% }); %>
+                        </tbody>
+                    </table>
+
+                    <div class="map-container" id="map"></div>
+
+                    <% } else if (results) { %>
+                        <div class="no-results">
+                            <p>No ambulance services found in this area. Please try another location.</p>
+                        </div>
+                        <% } %>
+    </div>
+</body>
+
+</html>
