@@ -2,90 +2,166 @@
 <html lang="en">
 
 <head>
-    <meta charset="UTF-8">
-    <title>Ambulance Locator</title>
-    <link rel="stylesheet" href="/style.css">
-    <script
-        src="https://maps.googleapis.com/maps/api/js?key=<%= process.env.GOOGLE_API_KEY %>&libraries=places"></script>
-    <script>
-        function submitWithLocation() {
-            if (navigator.geolocation) {
-                navigator.geolocation.getCurrentPosition(position => {
-                    fetch('/search', {
-                        method: 'POST',
-                        headers: { 'Content-Type': 'application/json' },
-                        body: JSON.stringify({
-                            latitude: position.coords.latitude,
-                            longitude: position.coords.longitude
-                        })
-                    })
-                        .then(res => res.text())
-                        .then(html => {
-                            document.open();
-                            document.write(html);
-                            document.close();
-                        });
-                }, () => {
-                    alert('Could not get your location. Please enter an address manually.');
-                });
-            } else {
-                alert('Geolocation is not supported by your browser.');
-            }
-        }
-    </script>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Emergency Ambulance Locator</title>
+  <link rel="stylesheet" href="/style.css">
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+  <script
+    src="https://maps.googleapis.com/maps/api/js?key=<%= process.env.GOOGLE_API_KEY %>&libraries=places&callback=initMap"
+    async defer></script>
 </head>
 
 <body>
-    <div class="container">
-        <h2>Ambulance Locator</h2>
-        <form class="search-form" action="/search" method="POST">
-            <input type="text" name="address" placeholder="Enter location (address, city, or landmark)..." required>
-            <button type="submit">Search Ambulances</button>
-        </form>
+  <div class="container">
+    <h2><i class="fas fa-ambulance"></i> Emergency Ambulance Locator</h2>
 
-        <% if (error) { %>
-            <div class="error-message">
-                <p>
-                    <%= error %>
-                </p>
+    <form class="search-form" action="/search" method="POST">
+      <input type="text" name="address" placeholder="Enter location (address, city, or landmark)..." required>
+      <button type="submit">
+        <i class="fas fa-search"></i> Search Ambulances
+      </button>
+    </form>
+
+    <% if (error) { %>
+      <div class="error-message">
+        <i class="fas fa-exclamation-circle"></i>
+        <p>
+          <%= error %>
+        </p>
+      </div>
+      <% } %>
+
+        <% if (results && results.length> 0) { %>
+          <div class="results-container">
+            <h3><i class="fas fa-hospital"></i> Nearby Ambulance Services</h3>
+
+            <table class="results-table">
+              <thead>
+                <tr>
+                  <th>Service Name</th>
+                  <th>Address</th>
+                  <th>Contact</th>
+                  <th>Actions</th>
+                </tr>
+              </thead>
+              <tbody>
+                <% results.forEach(r=> { %>
+                  <tr>
+                    <td><strong>
+                        <%= r.name %>
+                      </strong></td>
+                    <td>
+                      <%= r.address %>
+                    </td>
+                    <td>
+                      <%= r.phone %>
+                    </td>
+                    <td class="action-buttons">
+                      <% if (r.phone !=='Not available' ) { %>
+                        <a href="tel:<%= r.phone %>" class="action-btn btn-call">
+                          <i class="fas fa-phone-alt"></i> Call
+                        </a>
+                        <% } %>
+                          <a href="https://www.google.com/maps?q=<%= r.latitude %>,<%= r.longitude %>" target="_blank"
+                            class="action-btn btn-map">
+                            <i class="fas fa-map-marked-alt"></i> Map
+                          </a>
+                    </td>
+                  </tr>
+                  <% }); %>
+              </tbody>
+            </table>
+
+            <div class="map-container" id="map"></div>
+          </div>
+
+          <script>
+            // Serialize EJS results into a JS variable
+            const results = <% - JSON.stringify(results || []) %>;
+
+            function initMap() {
+              // First check if results exist and have at least one item
+              let centerLocation;
+              if (results && results.length > 0) {
+                centerLocation = {
+                  lat: results[0].latitude,
+                  lng: results[0].longitude
+                };
+              } else {
+                // Default fallback location (e.g., Delhi coordinates)
+                centerLocation = { lat: 28.6139, lng: 77.2090 };
+              }
+
+              const mapOptions = {
+                zoom: 13,
+                center: centerLocation,
+                mapTypeControl: false,
+                streetViewControl: true,
+                styles: [
+                  {
+                    featureType: "poi.medical",
+                    elementType: "labels.icon",
+                    stylers: [{ visibility: "on" }]
+                  },
+                  {
+                    featureType: "poi.medical",
+                    elementType: "labels.text",
+                    stylers: [{ visibility: "on" }]
+                  }
+                ]
+              };
+
+              const map = new google.maps.Map(document.getElementById("map"), mapOptions);
+
+              // Add markers for each ambulance service
+              results.forEach(r => {
+                new google.maps.Marker({
+                  position: { lat: r.latitude, lng: r.longitude },
+                  map: map,
+                  title: r.name,
+                  icon: {
+                    url: "https://maps.google.com/mapfiles/ms/icons/red-dot.png",
+                    scaledSize: new google.maps.Size(32, 32)
+                  }
+                });
+              });
+
+              // Add info windows
+              results.forEach(r => {
+                const infoWindow = new google.maps.InfoWindow({
+                  content: `
+                  <div style="padding: 0.5rem;">
+                    <h4 style="margin: 0 0 0.5rem 0; color: var(--primary);">${r.name}</h4>
+                    <p style="margin: 0 0 0.25rem 0; font-size: 0.9rem;">${r.address}</p>
+                    <p style="margin: 0; font-size: 0.9rem;">
+                      <i class="fas fa-phone" style="margin-right: 0.25rem;"></i>
+                      ${r.phone}
+                    </p>
+                  </div>
+                `
+                });
+
+                const marker = new google.maps.Marker({
+                  position: { lat: r.latitude, lng: r.longitude },
+                  map: map,
+                  title: r.name
+                });
+
+                marker.addListener("click", () => {
+                  infoWindow.open(map, marker);
+                });
+              });
+            }
+          </script>
+          <% } else if (results) { %>
+            <div class="no-results">
+              <i class="fas fa-hospital-user"></i>
+              <p>No ambulance services found in this area. Please try another location.</p>
             </div>
             <% } %>
-
-                <% if (results && results.length> 0) { %>
-                    <h3>Nearby Ambulance Services</h3>
-                    <table class="results-table">
-                        <thead>
-                            <tr>
-                                <th>Company Name</th>
-                                <th>Address</th>
-                                <th>Phone Number</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            <% results.forEach(r=> { %>
-                                <tr>
-                                    <td><strong>
-                                            <%= r.name %>
-                                        </strong></td>
-                                    <td>
-                                        <%= r.address %>
-                                    </td>
-                                    <td>
-                                        <%= r.phone %>
-                                    </td>
-                                </tr>
-                                <% }); %>
-                        </tbody>
-                    </table>
-
-                    <div class="map-container" id="map"></div>
-
-                    <% } else if (results) { %>
-                        <div class="no-results">
-                            <p>No ambulance services found in this area. Please try another location.</p>
-                        </div>
-                        <% } %>
-    </div>
+  </div>
 </body>
 
 </html>
