@@ -124,7 +124,7 @@ h2::after {
   border-radius: 50%;
 }
 
-.search-options input[type="radio"]:checked + span {
+.search-options input[type="radio"]:checked+span {
   color: var(--primary);
   font-weight: 600;
 }
@@ -358,6 +358,7 @@ h3 {
     opacity: 0;
     transform: translateY(10px);
   }
+
   to {
     opacity: 1;
     transform: translateY(0);
@@ -370,36 +371,36 @@ h3 {
     margin: 1rem;
     padding: 1.5rem;
   }
-  
+
   .search-options {
     flex-direction: column;
   }
-  
+
   .search-input-group {
     flex-direction: column;
   }
-  
+
   .search-field {
     flex-direction: column;
     align-items: flex-start;
     gap: 0.5rem;
   }
-  
+
   .search-field select {
     max-width: 100%;
     width: 100%;
   }
-  
+
   .results-table {
     display: block;
     overflow-x: auto;
     white-space: nowrap;
   }
-  
+
   .action-buttons {
     flex-wrap: wrap;
   }
-  
+
   .action-btn {
     padding: 0.5rem;
     font-size: 0.75rem;
@@ -410,14 +411,19 @@ h3 {
   h2 {
     font-size: 1.75rem;
   }
-  
-  .search-form input, 
+
+  .search-form input,
   .search-form button {
     padding: 0.875rem 1rem;
   }
-  
+
   .search-options label {
     padding: 0.75rem;
-  font-size: 0.9rem;
+    font-size: 0.9rem;
   }
+}
+
+.custom-select option:disabled {
+  background-color: var(--primary-dark) !important;
+  color: #fff !important;
 }
