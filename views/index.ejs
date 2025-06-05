@@ -15,7 +15,9 @@
 
 <body>
   <div class="container">
-    <h2><i class="fas fa-ambulance"></i> Emergency Ambulance Locator</h2>
+    <h2 onclick="window.location.href='/'" style="cursor: pointer;">
+      <i class="fas fa-ambulance"></i> Emergency Ambulance Locator
+    </h2>
 
     <form class="search-form" action="/search" method="POST">
       <div class="search-options">
@@ -61,95 +63,104 @@
     <% if (error) { %>
       <div class="error-message">
         <i class="fas fa-exclamation-circle"></i>
-        <p><%= error %></p>
+        <p>
+          <%= error %>
+        </p>
       </div>
-    <% } %>
+      <% } %>
 
-    <% if (results && results.length > 0) { %>
-      <div class="results-container">
-        <h3><i class="fas fa-hospital"></i> Nearby Ambulance Services</h3>
+        <% if (results && results.length> 0) { %>
+          <div class="results-container">
+            <h3><i class="fas fa-hospital"></i> Nearby Ambulance Services</h3>
 
-        <table class="results-table">
-          <thead>
-            <tr>
-              <th>Service Name</th>
-              <th>Address</th>
-              <th>Contact</th>
-              <th>Actions</th>
-            </tr>
-          </thead>
-          <tbody>
-            <% results.forEach(r => { %>
-              <tr>
-                <td><strong><%= r.name %></strong></td>
-                <td><%= r.address %></td>
-                <td><%= r.phone %></td>
-                <td class="action-buttons">
-                  <% if (r.phone !== 'Not available') { %>
-                    <a href="tel:<%= r.phone %>" class="action-btn btn-call">
-                      <i class="fas fa-phone-alt"></i> Call
-                    </a>
-                  <% } %>
-                  <a href="https://www.google.com/maps?q=<%= r.latitude %>,<%= r.longitude %>" target="_blank" class="action-btn btn-map">
-                    <i class="fas fa-map-marked-alt"></i> Map
-                  </a>
-                </td>
-              </tr>
-            <% }); %>
-          </tbody>
-        </table>
+            <table class="results-table">
+              <thead>
+                <tr>
+                  <th>Service Name</th>
+                  <th>Address</th>
+                  <th>Contact</th>
+                  <th>Actions</th>
+                </tr>
+              </thead>
+              <tbody>
+                <% results.forEach(r=> { %>
+                  <tr>
+                    <td><strong>
+                        <%= r.name %>
+                      </strong></td>
+                    <td>
+                      <%= r.address %>
+                    </td>
+                    <td>
+                      <%= r.phone %>
+                    </td>
+                    <td class="action-buttons">
+                      <% if (r.phone !=='Not available' ) { %>
+                        <a href="tel:<%= r.phone %>" class="action-btn btn-call">
+                          <i class="fas fa-phone-alt"></i> Call
+                        </a>
+                        <% } %>
+                          <a href="https://www.google.com/maps?q=<%= r.latitude %>,<%= r.longitude %>" target="_blank"
+                            class="action-btn btn-map">
+                            <i class="fas fa-map-marked-alt"></i> Map
+                          </a>
+                    </td>
+                  </tr>
+                  <% }); %>
+              </tbody>
+            </table>
 
-        <div class="map-container" id="map"></div>
-      </div>
+            <div class="map-container" id="map"></div>
+          </div>
 
-      <script>
-        const results = <%- JSON.stringify(results || []) %>;
+          <script>
+            const results = <% - JSON.stringify(results || []) %>;
 
-        function initMap() {
-          let centerLocation;
-          if (results && results.length > 0) {
-            centerLocation = {
-              lat: results[0].latitude,
-              lng: results[0].longitude
-            };
-          } else {
-            centerLocation = { lat: 28.6139, lng: 77.2090 };
-          }
-
-          const mapOptions = {
-            zoom: 13,
-            center: centerLocation,
-            mapTypeControl: false,
-            streetViewControl: true,
-            styles: [
-              {
-                featureType: "poi.medical",
-                elementType: "labels.icon",
-                stylers: [{ visibility: "on" }]
-              },
-              {
-                featureType: "poi.medical",
-                elementType: "labels.text",
-                stylers: [{ visibility: "on" }]
+            function initMap() {
+              let centerLocation;
+              if (results && results.length > 0) {
+                centerLocation = {
+                  lat: results[0].latitude,
+                  lng: results[0].longitude
+                };
+              } else {
+                centerLocation = { lat: 28.6139, lng: 77.2090 };
               }
-            ]
-          };
 
-          const map = new google.maps.Map(document.getElementById("map"), mapOptions);
+              const mapOptions = {
+                zoom: 13,
+                center: centerLocation,
+                mapTypeControl: false,
+                streetViewControl: true,
+                styles: [
+                  {
+                    featureType: "poi.medical",
+                    elementType: "labels.icon",
+                    stylers: [{ visibility: "on" }]
+                  },
+                  {
+                    featureType: "poi.medical",
+                    elementType: "labels.text",
+                    stylers: [{ visibility: "on" }]
+                  }
+                ]
+              };
 
-          results.forEach(r => {
-            const marker = new google.maps.Marker({
-              position: { lat: r.latitude, lng: r.longitude },
-              map: map,
-              title: r.name,
-              icon: {
-                url: "https://maps.google.com/mapfiles/ms/icons/red-dot.png",
-                scaledSize: new google.maps.Size(32, 32)
-              }
-            });
+              const map = new google.maps.Map(document.getElementById("map"), mapOptions);
 
-            const infoWindow = new google.maps.InfoWindow({
-              content: `
+              results.forEach(r => {
+                const marker = new google.maps.Marker({
+                  position: { lat: r.latitude, lng: r.longitude },
+                  map: map,
+                  title: r.name,
+                  icon: {
+                    url: "https://maps.google.com/mapfiles/ms/icons/red-dot.png",
+                    scaledSize: new google.maps.Size(32, 32)
+                  }
+                });
+
+                const infoWindow = new google.maps.InfoWindow({
+                  content: `
                 <div style="padding: 0.5rem;">
                   <h4 style="margin: 0 0 0.5rem 0; color: var(--primary);">${r.name}</h4>
                   <p style="margin: 0 0 0.25rem 0; font-size: 0.9rem;">${r.address}</p>
@@ -159,24 +170,24 @@
                   </p>
                 </div>
               `
-            });
+                });
 
-            marker.addListener("click", () => {
-              infoWindow.open(map, marker);
-            });
-          });
-        }
-      </script>
-    <% } else if (results) { %>
-      <div class="no-results">
-        <i class="fas fa-hospital-user"></i>
-        <p>No ambulance services found in this area. Please try another location.</p>
-      </div>
-    <% } %>
+                marker.addListener("click", () => {
+                  infoWindow.open(map, marker);
+                });
+              });
+            }
+          </script>
+          <% } else if (results) { %>
+            <div class="no-results">
+              <i class="fas fa-hospital-user"></i>
+              <p>No ambulance services found in this area. Please try another location.</p>
+            </div>
+            <% } %>
   </div>
 
   <script>
-    document.addEventListener('DOMContentLoaded', function() {
+    document.addEventListener('DOMContentLoaded', function () {
       const searchTypeRadios = document.querySelectorAll('input[name="searchType"]');
       const radiusField = document.querySelector('.radius-field');
       const placeField = document.querySelector('.place-field');
