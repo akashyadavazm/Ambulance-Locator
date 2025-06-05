@@ -14,8 +14,8 @@ A location-based service that finds and displays nearby ambulance providers usin
 ### Configuration
 #### 1. Create .env file in project root:
 
-- env
-- [GOOGLE_API_KEY](https://render.com/docs/configure-environment-variables)=your_api_key_here
+- [env](https://render.com/docs/configure-environment-variables)
+- [GOOGLE_API_KEY]([https://render.com/docs/configure-environment-variables](https://developers.google.com/maps/documentation/javascript/get-api-key))=your_api_key_here
 #### 2. Never commit this file (add to .gitignore)
 
 ## ⚠️ Important Notes
