@@ -26,6 +26,7 @@ app.post('/search', async (req, res) => {
             const queryAddress = address || 'Delhi';
             const geocodeURL = `https://maps.googleapis.com/maps/api/geocode/json?address=${encodeURIComponent(queryAddress)}&key=${apiKey}`;
             const geocodeRes = await axios.get(geocodeURL);
+            console.log('Geocode response:', geocodeRes.data);
 
             if (geocodeRes.data.status !== 'OK' || geocodeRes.data.results.length === 0) {
                 throw new Error('Geocoding failed');
@@ -39,10 +40,10 @@ app.post('/search', async (req, res) => {
         let placesURL;
         if (searchType === 'place') {
             // Search by place type
-            placesURL = `https://maps.googleapis.com/maps/api/place/nearbysearch/json?location=${latitude},${longitude}&radius=50000&type=${placeType || 'hospital'}&keyword=ambulance&key=${apiKey}`;
+            placesURL = `https://maps.googleapis.com/maps/api/place/nearbysearch/json?location=${latitude},${longitude}&radius=50000&type=${placeType || ''}&keyword=ambulance&key=${apiKey}`;
         } else {
             // Default search by radius
-            placesURL = `https://maps.googleapis.com/maps/api/place/nearbysearch/json?location=${latitude},${longitude}&radius=${radius || 50000}&type=hospital&keyword=ambulance&key=${apiKey}`;
+            placesURL = `https://maps.googleapis.com/maps/api/place/nearbysearch/json?location=${latitude},${longitude}&radius=${radius || 50000}&keyword=ambulance&key=${apiKey}`;
         }
 
         const placesRes = await axios.get(placesURL);
@@ -57,6 +58,8 @@ app.post('/search', async (req, res) => {
                         const detailsURL = `https://maps.googleapis.com/maps/api/place/details/json?place_id=${place.place_id}&fields=name,formatted_address,formatted_phone_number,geometry&key=${apiKey}`;
                         const detailsRes = await axios.get(detailsURL);
                         const details = detailsRes.data.result;
+                        console.log('Place: ', place);
+                        console.log('Details: ', details);
 
                         return {
                             name: details.name,
