@@ -427,3 +427,49 @@ h3 {
   background-color: var(--primary-dark) !important;
   color: #fff !important;
 }
+
+@media print {
+  body {
+    -webkit-print-color-adjust: exact !important;
+    print-color-adjust: exact !important;
+  }
+
+  #printable-area {
+    width: 100% !important;
+    font-family: Arial, sans-serif !important;
+    font-size: 12pt !important;
+    line-height: 1.5 !important;
+    -webkit-print-color-adjust: exact !important;
+    print-color-adjust: exact !important;
+  }
+
+  /* Force solid backgrounds */
+  .results-table th {
+    -webkit-print-color-adjust: exact !important;
+    print-color-adjust: exact !important;
+  }
+
+  /* Remove all shadows and transparencies */
+  * {
+    text-shadow: none !important;
+    box-shadow: none !important;
+  }
+
+  table {
+    page-break-inside: auto !important;
+  }
+
+  tr {
+    page-break-inside: avoid !important;
+    page-break-after: auto !important;
+  }
+
+  td,
+  th {
+    padding: 6px 8px !important;
+  }
+}
+
+.page {
+  page-break-after: always;
+}

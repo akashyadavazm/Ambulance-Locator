@@ -11,6 +11,68 @@
   <script
     src="https://maps.googleapis.com/maps/api/js?key=<%= process.env.GOOGLE_API_KEY %>&libraries=places&callback=initMap"
     async defer></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
+  <script>
+    document.addEventListener("DOMContentLoaded", function () {
+      const downloadBtn = document.getElementById("download-pdf");
+      if (downloadBtn) {
+        downloadBtn.addEventListener("click", function (e) {
+          e.preventDefault(); // Prevent form submission if inside a form
+          const element = document.getElementById("printable-area");
+          if (!element) {
+            alert("Printable content not found!");
+            return;
+          }
+
+          const opt = {
+            margin: [10, 10, 20, 10],
+            filename: 'ambulance-services-report.pdf',
+            image: {
+              type: 'jpeg',
+              quality: 1
+            },
+            html2canvas: {
+              scale: 3,
+              useCORS: true,
+              allowTaint: false,
+              letterRendering: true,
+              backgroundColor: '#fff'  // force white background
+            },
+            jsPDF: {
+              unit: 'mm',
+              format: 'a4',
+              orientation: 'portrait',
+              compress: true
+            },
+            pagebreak: {
+              mode: ['avoid-all', 'css', 'legacy'],
+              avoid: ['tr', '.avoid-break']
+            }
+          };
+
+          html2pdf()
+            .set(opt)
+            .from(element)
+            .toPdf()
+            .get('pdf')
+            .then(function (pdf) {
+              const totalPages = pdf.internal.getNumberOfPages();
+              for (let i = 1; i <= totalPages; i++) {
+                pdf.setPage(i);
+                pdf.setFontSize(10);
+                pdf.text(
+                  `Page ${i} of ${totalPages}`,
+                  pdf.internal.pageSize.getWidth() / 2,
+                  pdf.internal.pageSize.getHeight() - 10,
+                  { align: 'center' }
+                );
+              }
+            })
+            .save();
+        });
+      }
+    });
+  </script>
 </head>
 
 <body>
@@ -20,45 +82,55 @@
     </h2>
 
     <form class="search-form" action="/search" method="POST">
-      <div class="search-options">
-        <label>
-          <input type="radio" name="searchType" value="radius" checked>
-          <span>Search with Radius</span>
-        </label>
-        <label>
-          <input type="radio" name="searchType" value="place">
-          <span>Search with Place</span>
-        </label>
-      </div>
-
-      <input type="text" name="address" placeholder="Enter location (address, city, or landmark)..." required>
-
-      <div class="search-fields">
-        <div class="search-field radius-field active">
-          <label for="radius">Radius:</label>
-          <select name="radius" id="radius">
-            <option value="10000">10 km</option>
-            <option value="25000">25 km</option>
-            <option value="50000">50 km</option>
-            <option value="75000">75 km</option>
-            <option value="100000">100 km</option>
-          </select>
+      <% if (!results) { %>
+        <div class="search-options">
+          <label>
+            <input type="radio" name="searchType" value="radius" checked>
+            <span>Search with Radius</span>
+          </label>
+          <label>
+            <input type="radio" name="searchType" value="place">
+            <span>Search with Place</span>
+          </label>
         </div>
 
-        <div class="search-field place-field">
-          <label for="placeType">Place Type:</label>
-          <select name="placeType" id="placeType" class="custom-select">
-            <option value="" disabled selected>Select a place type</option>
-            <option value="hospital">Hospital</option>
-            <option value="health">Health Center</option>
-            <option value="ambulance">Ambulance</option>
-          </select>
-        </div>
-      </div>
+        <input type="text" name="address" placeholder="Enter location (address, city, or landmark)..." required>
 
-      <button type="submit">
-        <i class="fas fa-search"></i> Search Ambulances
-      </button>
+        <div class="search-fields">
+          <div class="search-field radius-field active">
+            <label for="radius">Radius:</label>
+            <select name="radius" id="radius" style="padding-left:8px; padding-right:20px;" class="custom-select">
+              <option value="" disabled selected>Select radius</option>
+              <option value="10000">5 km</option>
+              <option value="10000">10 km</option>
+              <option value="25000">25 km</option>
+              <option value="50000">50 km</option>
+              <option value="75000">75 km</option>
+              <option value="100000">100 km</option>
+            </select>
+          </div>
+
+          <div class="search-field place-field">
+            <label for="placeType">Place Type:</label>
+            <select name="placeType" id="placeType" class="custom-select">
+              <option value="" disabled selected>Select a place type</option>
+              <option value="hospital">Hospital</option>
+              <option value="health">Health Center</option>
+              <option value="ambulance">Ambulance</option>
+            </select>
+          </div>
+        </div>
+
+        <button type="submit">
+          <i class="fas fa-search"></i> Search Ambulances
+        </button>
+        <% } %>
+
+          <% if (results && results.length> 0) { %>
+            <button id="download-pdf" class="action-btn" style="margin-top: 1rem;">
+              <i class="fas fa-file-pdf"></i> Download as PDF
+            </button>
+            <% } %>
     </form>
 
     <% if (error) { %>
@@ -71,51 +143,55 @@
       <% } %>
 
         <% if (results && results.length> 0) { %>
-          <div class="results-container">
-            <h3><i class="fas fa-hospital"></i> Nearby Ambulance Services</h3>
+          <div id="printable-area">
+            <div class="page">
+              <div class="results-container">
+                <h3 style="text-align: center; margin-bottom: 20px;"><i class="fas fa-hospital"></i> Nearby Ambulance
+                  Services</h3>
 
-            <table class="results-table">
-              <thead>
-                <tr>
-                  <th>Service Name</th>
-                  <th>Address</th>
-                  <th>Contact</th>
-                  <th>Actions</th>
-                </tr>
-              </thead>
-              <tbody>
-                <% results.forEach(r=> { %>
-                  <tr>
-                    <td><strong>
-                        <%= r.name %>
-                      </strong></td>
-                    <td>
-                      <%= r.address %>
-                    </td>
-                    <td>
-                      <%= r.phone %>
-                    </td>
-                    <td class="action-buttons">
-                      <% if (r.phone !=='Not available' ) { %>
-                        <a href="tel:<%= r.phone %>" class="action-btn btn-call">
-                          <i class="fas fa-phone-alt"></i> Call
-                        </a>
-                        <% } %>
-                          <a href="https://www.google.com/maps?q=<%= r.latitude %>,<%= r.longitude %>" target="_blank"
-                            class="action-btn btn-map">
-                            <i class="fas fa-map-marked-alt"></i> Map
-                          </a>
-                    </td>
-                  </tr>
-                  <% }); %>
-              </tbody>
-            </table>
-
-            <div class="map-container" id="map"></div>
+                <table class="results-table" style="width: 100%; border-collapse: collapse; margin-top: 15px;">
+                  <thead>
+                    <tr>
+                      <th style="padding: 8px; border: 1px solid #ddd; text-align: left;">Service Name</th>
+                      <th style="padding: 8px; border: 1px solid #ddd; text-align: left;">Address</th>
+                      <th style="padding: 8px; border: 1px solid #ddd; text-align: left;">Contact</th>
+                      <th style="padding: 8px; border: 1px solid #ddd; text-align: left;">Actions</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    <% results.forEach((r, index)=> { %>
+                      <tr>
+                        <td style="padding: 8px; border: 1px solid #ddd; text-align: left;"><strong>
+                            <%= r.name %>
+                          </strong></td>
+                        <td style="padding: 8px; border: 1px solid #ddd; max-width: 200px; word-wrap: break-word;">
+                          <%= r.address %>
+                        </td>
+                        <td style="padding: 8px; border: 1px solid #ddd; text-align: left;">
+                          <%= r.phone %>
+                        </td>
+                        <td class="action-buttons">
+                          <% if (r.phone !=='Not available' ) { %>
+                            <a href="tel:<%= r.phone %>" class="action-btn btn-call">
+                              <i class="fas fa-phone-alt"></i> Call
+                            </a>
+                            <% } %>
+                              <a href="https://www.google.com/maps?q=<%= r.latitude %>,<%= r.longitude %>"
+                                target="_blank" class="action-btn btn-map">
+                                <i class="fas fa-map-marked-alt"></i> Map
+                              </a>
+                        </td>
+                      </tr>
+                      <% }); %>
+                  </tbody>
+                </table>
+              </div>
+            </div>
           </div>
+          <div class="map-container" id="map"></div>
 
           <script>
-            const results = <%- JSON.stringify(results || []) %>;
+            const results = <% - JSON.stringify(results || []) %>;
 
             function initMap() {
               let centerLocation;
