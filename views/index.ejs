@@ -12,6 +12,7 @@
     src="https://maps.googleapis.com/maps/api/js?key=<%= process.env.GOOGLE_API_KEY %>&libraries=places&callback=initMap"
     async defer></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
   <script>
     document.addEventListener("DOMContentLoaded", function () {
       const downloadBtn = document.getElementById("download-pdf");
@@ -25,7 +26,7 @@
           }
 
           const opt = {
-            margin: [10, 10, 20, 10],
+            margin: [25, 10, 25, 10], // top, right, bottom, left
             filename: 'ambulance-services-report.pdf',
             image: {
               type: 'jpeg',
@@ -73,6 +74,37 @@
       }
     });
   </script>
+
+  <script>
+    document.addEventListener("DOMContentLoaded", function () {
+      const exportExcelBtn = document.getElementById("export-excel");
+
+      if (exportExcelBtn) {
+        exportExcelBtn.addEventListener("click", function () {
+          const table = document.querySelector(".results-table");
+          if (!table) {
+            alert("Table not found!");
+            return;
+          }
+
+          const wb = XLSX.utils.book_new();
+          const ws = XLSX.utils.table_to_sheet(table);
+          // Optional: set column widths
+          ws['!cols'] = [
+            { wch: 30 }, // Service Name
+            { wch: 50 }, // Address
+            { wch: 20 }, // Contact Number
+            { wch: 60 }  // Map URL
+          ];
+          XLSX.utils.book_append_sheet(wb, ws, "Report");
+
+          XLSX.writeFile(wb, "ambulance-services-report.xlsx");
+        });
+      }
+    });
+  </script>
+
+
 </head>
 
 <body>
@@ -129,6 +161,9 @@
           <% if (results && results.length> 0) { %>
             <button id="download-pdf" class="action-btn" style="margin-top: 1rem;">
               <i class="fas fa-file-pdf"></i> Download as PDF
+            </button>
+            <button id="export-excel" class="action-btn btn-map">
+              <i class="fas fa-file-excel"></i> Export to Excel
             </button>
             <% } %>
     </form>
