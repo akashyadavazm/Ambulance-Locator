@@ -238,12 +238,13 @@ h3 {
 
 .results-table {
   width: 100%;
-  border-collapse: separate;
+  border-collapse: collapse;
   border-spacing: 0;
   margin-top: 1.5rem;
   box-shadow: var(--shadow-sm);
   border-radius: 8px;
   overflow: hidden;
+  width: 100%;
 }
 
 .results-table th {
@@ -307,15 +308,16 @@ h3 {
 }
 
 btn-pdf {
-  background-color: #e63946 !important;
+  background-color: #d9534f !important;
   /* Red */
   color: white !important;
+  box-shadow: 0 2px 4px rgba(217, 83, 79, 0.3) !important;
 }
 
 .btn-excel {
-  background-color: #2a9d8f !important;
-  /* Greenish */
-  color: white !important;
+  background-color: #5cb85c; /* Bootstrap success */
+  color: white;
+  box-shadow: 0 2px 4px rgba(92, 184, 92, 0.3);
 }
 
 .btn-pdf:hover {
@@ -331,9 +333,20 @@ btn-pdf {
   color: white;
 }
 
+.btn-pdf {
+  background-color: #d9534f !important; /* Bootstrap danger */
+  color: white !important;
+  box-shadow: 0 2px 4px rgba(217, 83, 79, 0.3) !important;
+}
+
+.btn-excel {
+  background-color: #5cb85c !important; /* Bootstrap success */
+  color: white !important;
+  box-shadow: 0 2px 4px rgba(92, 184, 92, 0.3) !important;
+}
 
 .btn-call {
-  background-color: var(--success);
+  background-color: #28a745;
   color: white;
 }
 
@@ -343,7 +356,7 @@ btn-pdf {
 }
 
 .btn-map {
-  background-color: var(--secondary);
+  background-color: #007bff;
   color: white;
 }
 
