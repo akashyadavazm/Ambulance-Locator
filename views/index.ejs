@@ -159,12 +159,14 @@
         <% } %>
 
           <% if (results && results.length> 0) { %>
-            <button id="download-pdf" class="action-btn" style="margin-top: 1rem;">
-              <i class="fas fa-file-pdf"></i> Download as PDF
-            </button>
-            <button id="export-excel" class="action-btn btn-map">
-              <i class="fas fa-file-excel"></i> Export to Excel
-            </button>
+            <div class="export-buttons">
+              <button id="download-pdf" class="action-btn btn-pdf">
+                <i class="fas fa-file-pdf"></i> Download as PDF
+              </button>
+              <button id="export-excel" class="action-btn btn-excel">
+                <i class="fas fa-file-excel"></i> Export to Excel
+              </button>
+            </div>
             <% } %>
     </form>
 
@@ -190,7 +192,8 @@
                       <th style="padding: 8px; border: 1px solid #ddd; text-align: left;">Service Name</th>
                       <th style="padding: 8px; border: 1px solid #ddd; text-align: left;">Address</th>
                       <th style="padding: 8px; border: 1px solid #ddd; text-align: left;">Contact</th>
-                      <th style="padding: 8px; border: 1px solid #ddd; text-align: left;">Actions</th>
+                      <th style="padding: 8px; border: 1px solid #ddd; text-align: center;">Call</th>
+                      <th style="padding: 8px; border: 1px solid #ddd; text-align: center;">Map</th>
                     </tr>
                   </thead>
                   <tbody>
@@ -205,16 +208,23 @@
                         <td style="padding: 8px; border: 1px solid #ddd; text-align: left;">
                           <%= r.phone %>
                         </td>
-                        <td class="action-buttons">
+                        <!-- Call Button Column -->
+                        <td style="padding: 8px; border: 1px solid #ddd; text-align: center;">
                           <% if (r.phone !=='Not available' ) { %>
                             <a href="tel:<%= r.phone %>" class="action-btn btn-call">
                               <i class="fas fa-phone-alt"></i> Call
                             </a>
-                            <% } %>
-                              <a href="https://www.google.com/maps?q=<%= r.latitude %>,<%= r.longitude %>"
-                                target="_blank" class="action-btn btn-map">
-                                <i class="fas fa-map-marked-alt"></i> Map
-                              </a>
+                            <% } else { %>
+                              Not Available
+                              <% } %>
+                        </td>
+
+                        <!-- Map Button Column -->
+                        <td style="padding: 8px; border: 1px solid #ddd; text-align: center;">
+                          <a href="https://www.google.com/maps?q=<%= r.latitude %>,<%= r.longitude %>" target="_blank"
+                            class="action-btn btn-map">
+                            <i class="fas fa-map-marked-alt"></i> Map
+                          </a>
                         </td>
                       </tr>
                       <% }); %>
