@@ -247,7 +247,7 @@ h3 {
 }
 
 .results-table th {
-  background-color: var(--primary);
+  background-color: #264653;
   color: white;
   padding: 1rem 1.25rem;
   text-align: left;
@@ -274,6 +274,17 @@ h3 {
   background-color: #f1f5f9;
 }
 
+.export-buttons {
+  display: flex;
+  gap: 1rem;
+  margin-top: 1rem;
+  flex-wrap: wrap;
+}
+
+.export-buttons .action-btn {
+  flex: 1 1 auto;
+}
+
 .action-buttons {
   display: flex;
   gap: 0.5rem;
@@ -286,11 +297,40 @@ h3 {
   font-weight: 500;
   display: inline-flex;
   align-items: center;
+  justify-content: center;
   gap: 0.25rem;
   text-decoration: none;
-  transition: var(--transition);
+  transition: all 0.3s ease-in-out;
   cursor: pointer;
+  border: none;
+  /* Optional: remove default button border */
 }
+
+btn-pdf {
+  background-color: #e63946 !important;
+  /* Red */
+  color: white !important;
+}
+
+.btn-excel {
+  background-color: #2a9d8f !important;
+  /* Greenish */
+  color: white !important;
+}
+
+.btn-pdf:hover {
+  background-color: #c92b36 !important;
+}
+
+.btn-excel:hover {
+  background-color: #21867a !important;
+}
+
+.btn-pdf i,
+.btn-excel i {
+  color: white;
+}
+
 
 .btn-call {
   background-color: var(--success);
