@@ -261,6 +261,7 @@ h3 {
   padding: 1rem 1.25rem;
   border-bottom: 1px solid #eee;
   vertical-align: middle;
+  text-align: left;
 }
 
 .results-table tr:last-child td {
@@ -273,6 +274,26 @@ h3 {
 
 .results-table tr:hover {
   background-color: #f1f5f9;
+}
+
+/* Column width customization */
+.results-table th:nth-child(1),
+.results-table td:nth-child(1) {
+  width: 5%;
+  text-align: center;
+}
+
+.results-table th:nth-child(3),
+.results-table td:nth-child(3) {
+  width: 35%;
+}
+
+.results-table th:nth-child(5),
+.results-table td:nth-child(5),
+.results-table th:nth-child(6),
+.results-table td:nth-child(6) {
+  width: 10%;
+  text-align: center;
 }
 
 .export-buttons {
@@ -315,7 +336,8 @@ btn-pdf {
 }
 
 .btn-excel {
-  background-color: #5cb85c; /* Bootstrap success */
+  background-color: #5cb85c;
+  /* Bootstrap success */
   color: white;
   box-shadow: 0 2px 4px rgba(92, 184, 92, 0.3);
 }
@@ -334,13 +356,15 @@ btn-pdf {
 }
 
 .btn-pdf {
-  background-color: #d9534f !important; /* Bootstrap danger */
+  background-color: #d9534f !important;
+  /* Bootstrap danger */
   color: white !important;
   box-shadow: 0 2px 4px rgba(217, 83, 79, 0.3) !important;
 }
 
 .btn-excel {
-  background-color: #5cb85c !important; /* Bootstrap success */
+  background-color: #5cb85c !important;
+  /* Bootstrap success */
   color: white !important;
   box-shadow: 0 2px 4px rgba(92, 184, 92, 0.3) !important;
 }
