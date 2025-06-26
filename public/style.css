@@ -238,12 +238,13 @@ h3 {
 
 .results-table {
   width: 100%;
-  border-collapse: separate;
+  border-collapse: collapse;
   border-spacing: 0;
   margin-top: 1.5rem;
   box-shadow: var(--shadow-sm);
   border-radius: 8px;
   overflow: hidden;
+  width: 100%;
 }
 
 .results-table th {
@@ -260,6 +261,7 @@ h3 {
   padding: 1rem 1.25rem;
   border-bottom: 1px solid #eee;
   vertical-align: middle;
+  text-align: left;
 }
 
 .results-table tr:last-child td {
@@ -272,6 +274,26 @@ h3 {
 
 .results-table tr:hover {
   background-color: #f1f5f9;
+}
+
+/* Column width customization */
+.results-table th:nth-child(1),
+.results-table td:nth-child(1) {
+  width: 5%;
+  text-align: center;
+}
+
+.results-table th:nth-child(3),
+.results-table td:nth-child(3) {
+  width: 35%;
+}
+
+.results-table th:nth-child(5),
+.results-table td:nth-child(5),
+.results-table th:nth-child(6),
+.results-table td:nth-child(6) {
+  width: 10%;
+  text-align: center;
 }
 
 .export-buttons {
@@ -307,15 +329,17 @@ h3 {
 }
 
 btn-pdf {
-  background-color: #e63946 !important;
+  background-color: #d9534f !important;
   /* Red */
   color: white !important;
+  box-shadow: 0 2px 4px rgba(217, 83, 79, 0.3) !important;
 }
 
 .btn-excel {
-  background-color: #2a9d8f !important;
-  /* Greenish */
-  color: white !important;
+  background-color: #5cb85c;
+  /* Bootstrap success */
+  color: white;
+  box-shadow: 0 2px 4px rgba(92, 184, 92, 0.3);
 }
 
 .btn-pdf:hover {
@@ -331,9 +355,22 @@ btn-pdf {
   color: white;
 }
 
+.btn-pdf {
+  background-color: #d9534f !important;
+  /* Bootstrap danger */
+  color: white !important;
+  box-shadow: 0 2px 4px rgba(217, 83, 79, 0.3) !important;
+}
+
+.btn-excel {
+  background-color: #5cb85c !important;
+  /* Bootstrap success */
+  color: white !important;
+  box-shadow: 0 2px 4px rgba(92, 184, 92, 0.3) !important;
+}
 
 .btn-call {
-  background-color: var(--success);
+  background-color: #28a745;
   color: white;
 }
 
@@ -343,7 +380,7 @@ btn-pdf {
 }
 
 .btn-map {
-  background-color: var(--secondary);
+  background-color: #007bff;
   color: white;
 }
 
