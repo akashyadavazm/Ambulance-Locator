@@ -91,10 +91,12 @@
           const ws = XLSX.utils.table_to_sheet(table);
           // Optional: set column widths
           ws['!cols'] = [
-            { wch: 30 }, // Service Name
-            { wch: 50 }, // Address
-            { wch: 20 }, // Contact Number
-            { wch: 60 }  // Map URL
+            { wch: 6 },   // S.No.
+            { wch: 30 },  // Service Name
+            { wch: 50 },  // Address
+            { wch: 20 },  // Contact
+            { wch: 15 },  // Call
+            { wch: 15 }   // Map
           ];
           XLSX.utils.book_append_sheet(wb, ws, "Report");
 
@@ -189,23 +191,35 @@
                 <table class="results-table" style="width: 100%; border-collapse: collapse; margin-top: 15px;">
                   <thead>
                     <tr>
-                      <th style="padding: 8px; border: 1px solid #ddd; text-align: left;">Service Name</th>
-                      <th style="padding: 8px; border: 1px solid #ddd; text-align: left;">Address</th>
-                      <th style="padding: 8px; border: 1px solid #ddd; text-align: left;">Contact</th>
+                      <th style="padding: 8px; border: 1px solid #ddd; text-align: center;">S.No.</th>
+                      <th style="padding: 8px; border: 1px solid #ddd; text-align: center;">Service Name</th>
+                      <th style="padding: 8px; border: 1px solid #ddd; text-align: center;">Address</th>
+                      <th style="padding: 8px; border: 1px solid #ddd; text-align: center;">Contact</th>
                       <th style="padding: 8px; border: 1px solid #ddd; text-align: center;">Call</th>
                       <th style="padding: 8px; border: 1px solid #ddd; text-align: center;">Map</th>
                     </tr>
                   </thead>
                   <tbody>
-                    <% results.forEach((r, index)=> { %>
+                    <% const sortedResults=results.slice().sort((a, b)=> {
+                      const hasPhoneA = a.phone && a.phone.toLowerCase() !== 'not available';
+                      const hasPhoneB = b.phone && b.phone.toLowerCase() !== 'not available';
+                      return hasPhoneA === hasPhoneB ? 0 : hasPhoneA ? -1 : 1;
+                      });
+
+                      sortedResults.forEach((r, index) => {
+                      %>
+
                       <tr>
-                        <td style="padding: 8px; border: 1px solid #ddd; text-align: left;"><strong>
+                        <td style="padding: 8px; border: 1px solid #ddd; text-align: center;"><strong>
+                            <%= index + 1 %>
+                          </strong></td>
+                        <td style="padding: 8px; border: 1px solid #ddd; text-align: center;"><strong>
                             <%= r.name %>
                           </strong></td>
-                        <td style="padding: 8px; border: 1px solid #ddd; max-width: 200px; word-wrap: break-word;">
+                        <td style="padding: 8px; border: 1px solid #ddd; max-width: 200px; word-wrap: break-word; text-align: center;">
                           <%= r.address %>
                         </td>
-                        <td style="padding: 8px; border: 1px solid #ddd; text-align: left;">
+                        <td style="padding: 8px; border: 1px solid #ddd; text-align: center;">
                           <%= r.phone %>
                         </td>
                         <!-- Call Button Column -->
