@@ -11,6 +11,20 @@
   <script
     src="https://maps.googleapis.com/maps/api/js?key=<%= process.env.GOOGLE_API_KEY %>&libraries=places&callback=initMap"
     async defer></script>
+  <script>
+    function loadGoogleMaps() {
+      const script = document.createElement('script');
+      script.src = `https://maps.googleapis.com/maps/api/js?key=<%= process.env.GOOGLE_API_KEY %>&libraries=places&callback=initMap`;
+      script.async = true;
+      script.defer = true;
+      script.onerror = function () {
+        console.error('Google Maps failed to load');
+        document.getElementById('map').innerHTML =
+          '<p>Could not load Google Maps. Please check your internet connection.</p>';
+      };
+      document.head.appendChild(script);
+    }
+  </script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
   <script>
@@ -216,7 +230,8 @@
                         <td style="padding: 8px; border: 1px solid #ddd; text-align: center;"><strong>
                             <%= r.name %>
                           </strong></td>
-                        <td style="padding: 8px; border: 1px solid #ddd; max-width: 200px; word-wrap: break-word; text-align: center;">
+                        <td
+                          style="padding: 8px; border: 1px solid #ddd; max-width: 200px; word-wrap: break-word; text-align: center;">
                           <%= r.address %>
                         </td>
                         <td style="padding: 8px; border: 1px solid #ddd; text-align: center;">
@@ -250,69 +265,83 @@
           <div class="map-container" id="map"></div>
 
           <script>
-            const results = <% - JSON.stringify(results || []) %>;
+            window.initMap = function () {
+              try {
+                const results = <%- JSON.stringify(results || []) %>;
+                console.log("Results:", results);
 
-            function initMap() {
-              let centerLocation;
-              if (results && results.length > 0) {
-                centerLocation = {
-                  lat: results[0].latitude,
-                  lng: results[0].longitude
+                let centerLocation;
+                if (results && results.length > 0) {
+                  centerLocation = {
+                    lat: results[0].latitude,
+                    lng: results[0].longitude
+                  };
+                } else {
+                  centerLocation = { lat: 28.6139, lng: 77.2090 };
+                }
+
+                const mapOptions = {
+                  zoom: 13,
+                  center: centerLocation,
+                  mapTypeControl: false,
+                  streetViewControl: true,
+                  styles: [
+                    {
+                      featureType: "poi.medical",
+                      elementType: "labels.icon",
+                      stylers: [{ visibility: "on" }]
+                    },
+                    {
+                      featureType: "poi.medical",
+                      elementType: "labels.text",
+                      stylers: [{ visibility: "on" }]
+                    }
+                  ]
                 };
-              } else {
-                centerLocation = { lat: 28.6139, lng: 77.2090 };
+
+                const map = new google.maps.Map(document.getElementById("map"), mapOptions);
+
+                results.forEach(r => {
+                  const marker = new google.maps.Marker({
+                    position: { lat: r.latitude, lng: r.longitude },
+                    map: map,
+                    title: r.name,
+                    icon: {
+                      url: "https://maps.google.com/mapfiles/ms/icons/red-dot.png",
+                      scaledSize: new google.maps.Size(32, 32)
+                    }
+                  });
+
+                  const infoWindow = new google.maps.InfoWindow({
+                    content: `
+                      <div style="padding: 0.5rem;">
+                      <h4 style="margin: 0 0 0.5rem 0; color: var(--primary);">${r.name}</h4>
+                      <p style="margin: 0 0 0.25rem 0; font-size: 0.9rem;">${r.address}</p>
+                      <p style="margin: 0; font-size: 0.9rem;">
+                      <i class="fas fa-phone" style="margin-right: 0.25rem;"></i>
+                        ${r.phone}
+                      </p>
+                      </div>
+                    `
+                  });
+
+                  marker.addListener("click", () => {
+                    infoWindow.open(map, marker);
+                  });
+                });
+              } catch (error) {
+                console.error("Map initialization error:", error);
+                document.getElementById('map').innerHTML =
+                  '<p>Error loading map. Please try again later.</p>';
               }
+            };
 
-              const mapOptions = {
-                zoom: 13,
-                center: centerLocation,
-                mapTypeControl: false,
-                streetViewControl: true,
-                styles: [
-                  {
-                    featureType: "poi.medical",
-                    elementType: "labels.icon",
-                    stylers: [{ visibility: "on" }]
-                  },
-                  {
-                    featureType: "poi.medical",
-                    elementType: "labels.text",
-                    stylers: [{ visibility: "on" }]
-                  }
-                ]
-              };
-
-              const map = new google.maps.Map(document.getElementById("map"), mapOptions);
-
-              results.forEach(r => {
-                const marker = new google.maps.Marker({
-                  position: { lat: r.latitude, lng: r.longitude },
-                  map: map,
-                  title: r.name,
-                  icon: {
-                    url: "https://maps.google.com/mapfiles/ms/icons/red-dot.png",
-                    scaledSize: new google.maps.Size(32, 32)
-                  }
-                });
-
-                const infoWindow = new google.maps.InfoWindow({
-                  content: `
-                <div style="padding: 0.5rem;">
-                  <h4 style="margin: 0 0 0.5rem 0; color: var(--primary);">${r.name}</h4>
-                  <p style="margin: 0 0 0.25rem 0; font-size: 0.9rem;">${r.address}</p>
-                  <p style="margin: 0; font-size: 0.9rem;">
-                    <i class="fas fa-phone" style="margin-right: 0.25rem;"></i>
-                    ${r.phone}
-                  </p>
-                </div>
-              `
-                });
-
-                marker.addListener("click", () => {
-                  infoWindow.open(map, marker);
-                });
-              });
-            }
+            // Load Google Maps when needed
+            document.addEventListener('DOMContentLoaded', function () {
+              if (document.getElementById('map')) {
+                loadGoogleMaps();
+              }
+            });
           </script>
           <% } else if (results) { %>
             <div class="no-results">
